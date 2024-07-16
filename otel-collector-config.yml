@@ -1,0 +1,48 @@
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: "0.0.0.0:55681"
+      grpc:
+        endpoint: "0.0.0.0:4317"
+
+exporters:
+  logging:
+    loglevel: debug
+
+  otlp:
+    endpoint: "https://es01:9200"  # Usando o nome do serviço do Elasticsearch
+    tls:
+#      cert_file: "/etc/otel/ssl/otel-collector.crt"   # Caminho para o certificado OTel Collector
+#      key_file: "/etc/otel/ssl/otel-collector.key"   # Caminho para a chave privada OTel Collector
+      insecure_skip_verify: true
+
+
+  elasticsearch:
+    endpoints: ["https://es01:9200"]
+    index: "otel-logs"
+    user: elastic
+    password: changeme
+    tls:
+#      cert_file: "/etc/otel/ssl/otel-collector.crt"   # Caminho para o certificado OTel Collector
+#      key_file: "/etc/otel/ssl/otel-collector.key"   # Caminho para a chave privada OTel Collector /ssl/ca.crt
+      insecure_skip_verify: true
+
+
+processors:
+  batch:
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp, logging, elasticsearch]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp, logging, elasticsearch]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp, logging, elasticsearch]
