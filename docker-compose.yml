@@ -4,6 +4,15 @@
 #openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout config/certs/otel-collector/otel-collector.key -out config/certs/otel-collector/otel-collector.crt -subj "/CN=otel-collector";
 #fi;
 
+#  *using java 17*
+#  mvn clean package -Dskiptests
+#  docker-compose build
+#  docker-compose down -v --remove-orphans
+#  docker run --rm --privileged=true alpine:latest sysctl -w vm.max_map_count=262144
+#  docker-compose up -d
+#  docker ps
+
+
 version: "3.8"
 
 volumes:
@@ -118,6 +127,7 @@ services:
       - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
       - xpack.security.transport.ssl.verification_mode=certificate
       - xpack.license.self_generated.type=${LICENSE}
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
     mem_limit: ${ES_MEM_LIMIT}
     ulimits:
       memlock:

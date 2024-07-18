@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -13,21 +14,7 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>observability-test</name>
 	<description>Demo project for Spring Boot</description>
-	<url/>
-	<licenses>
-		<license/>
-	</licenses>
-	<developers>
-		<developer/>
-	</developers>
-	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
-	</scm>
 	<properties>
-<!--		<java.version>21</java.version>-->
 		<java.version>17</java.version>
 	</properties>
 
@@ -36,14 +23,14 @@
 			<dependency>
 				<groupId>io.opentelemetry</groupId>
 				<artifactId>opentelemetry-bom</artifactId>
-				<version>1.25.0</version>
+				<version>1.40.0</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
 			<dependency>
-				<groupId>io.opentelemetry</groupId>
-				<artifactId>opentelemetry-bom-alpha</artifactId>
-				<version>1.25.0-alpha</version>
+				<groupId>io.opentelemetry.instrumentation</groupId>
+				<artifactId>opentelemetry-instrumentation-bom</artifactId>
+				<version>2.6.0</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -51,18 +38,25 @@
 	</dependencyManagement>
 
 	<dependencies>
-
 		<dependency>
 			<groupId>net.logstash.logback</groupId>
 			<artifactId>logstash-logback-encoder</artifactId>
 			<version>7.2</version>
 		</dependency>
 
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-otlp</artifactId>
+		</dependency>
+
+<!--		<dependency>-->
+<!--			<groupId>io.opentelemetry.instrumentation</groupId>-->
+<!--			<artifactId>opentelemetry-logback-mdc-1.0</artifactId>-->
+<!--		</dependency>-->
 
 		<dependency>
 			<groupId>io.opentelemetry.instrumentation</groupId>
-			<artifactId>opentelemetry-logback-mdc-1.0</artifactId>
-			<version>1.25.1-alpha</version>
+			<artifactId>opentelemetry-spring-boot-starter</artifactId>
 		</dependency>
 
 		<dependency>
@@ -77,26 +71,16 @@
 			<groupId>io.opentelemetry</groupId>
 			<artifactId>opentelemetry-exporter-otlp</artifactId>
 		</dependency>
+
 		<dependency>
-			<groupId>io.opentelemetry</groupId>
-			<artifactId>opentelemetry-semconv</artifactId>
-		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>io.opentelemetry</groupId>-->
-<!--			<artifactId>opentelemetry-exporter-otlp-logs</artifactId>-->
-<!--			<version>1.26.0-alpha</version>-->
-<!--		</dependency>-->
-<!--		<dependency>-->
-<!--			<groupId>io.opentelemetry</groupId>-->
-<!--			<artifactId>opentelemetry-exporter-otlp-metrics</artifactId>-->
-<!--			<version>1.14.0</version>-->
-<!--		</dependency>-->
-		<dependency>
-			<groupId>io.opentelemetry.instrumentation</groupId>
-			<artifactId>opentelemetry-logback-appender-1.0</artifactId>
-			<version>1.25.1-alpha</version>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 
+<!--		<dependency>-->
+<!--			<groupId>io.opentelemetry.instrumentation</groupId>-->
+<!--			<artifactId>opentelemetry-logback-appender-1.0</artifactId>-->
+<!--		</dependency>-->
 
 		<!-- Spring Boot Starter Web -->
 		<dependency>
@@ -105,10 +89,9 @@
 		</dependency>
 
 		<dependency>
-			<!-- Not managed by opentelemetry-bom -->
-			<groupId>io.opentelemetry.semconv</groupId>
+			<groupId>io.opentelemetry</groupId>
 			<artifactId>opentelemetry-semconv</artifactId>
-			<version>1.25.0-alpha</version>
+			<version>1.30.1-alpha</version>
 		</dependency>
 
 		<dependency>
@@ -116,7 +99,6 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-
 	</dependencies>
 
 	<build>
@@ -135,5 +117,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>

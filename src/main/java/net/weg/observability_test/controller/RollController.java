@@ -24,32 +24,34 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 public class RollController {
 
-    private final Meter meter;
-    private final LongCounter requestsCounter;
-    private final LongCounter anonymousRequestsCounter;
+//    private final Meter meter;
+//    private final LongCounter requestsCounter;
+//    private final LongCounter anonymousRequestsCounter;
+
+
 //    private final LongHistogram requestDurationTimer;
 
     private static final Logger logger = LoggerFactory.getLogger(RollController.class);
 
     @Autowired
     private SampleService sampleService;
-    @Autowired
-    private Tracer tracer;
+//    @Autowired
+//    private Tracer tracer;
 
     public RollController(OpenTelemetry openTelemetry){
-        meter = openTelemetry.getMeter("RollController");
-
-        requestsCounter = meter
-                .counterBuilder("roll_dice_requests")
-                .setDescription("Número de requisições para o método rollDice")
-                .setUnit("requests")
-                .build();
-
-        anonymousRequestsCounter = meter
-                .counterBuilder("anonymous_roll_dice_requests")
-                .setDescription("Número de requisições anônimas para o método rollDice")
-                .setUnit("requests")
-                .build();
+//        meter = openTelemetry.getMeter("RollController");
+//
+//        requestsCounter = meter
+//                .counterBuilder("roll_dice_requests")
+//                .setDescription("Número de requisições para o método rollDice")
+//                .setUnit("requests")
+//                .build();
+//
+//        anonymousRequestsCounter = meter
+//                .counterBuilder("anonymous_roll_dice_requests")
+//                .setDescription("Número de requisições anônimas para o método rollDice")
+//                .setUnit("requests")
+//                .build();
 
 //        requestDurationTimer = meter
 //                .histogramBuilder("http.response.latency")
@@ -63,14 +65,17 @@ public class RollController {
     public List<Integer> index(@RequestParam("player") Optional<String> player,
                                @RequestParam("rolls") Optional<Integer> rolls) {
 
-        Span span = tracer.spanBuilder("RollController.index").startSpan();
+//        Span span = tracer.spanBuilder("RollController.index").startSpan();
 
-        // Iniciar timer
-        long startTime = System.currentTimeMillis();
-        // Incrementar contador de requests
-        requestsCounter.add(1);
+////        // Iniciar timer
+////        long startTime = System.currentTimeMillis();
+//
+//        // Incrementar contador de requests
+//        requestsCounter.add(1);
 
-        try (var scope = span.makeCurrent()) {
+//        try (var scope = span.makeCurrent()) {
+        try{
+
             Thread.sleep(100);
             sampleService.someMethod();
             if (!rolls.isPresent()) {
@@ -83,26 +88,26 @@ public class RollController {
                 logger.info("{} is rolling the dice: {}", player.get(), result);
             } else {
                 logger.info("Anonymous player is rolling the dice: {}", result);
-                anonymousRequestsCounter.add(
-                        1,
-                        Attributes.of(AttributeKey.stringKey("result"), result.toString(),
-                        AttributeKey.stringKey("rolls"), rolls.get().toString())
-                );
+//                anonymousRequestsCounter.add(
+//                        1,
+//                        Attributes.of(AttributeKey.stringKey("result"), result.toString(),
+//                        AttributeKey.stringKey("rolls"), rolls.get().toString())
+//                );
             }
 
             // Finalizar timer e gravar duração
 //            long duration = System.currentTimeMillis() - startTime;
 //            requestDurationTimer.record(duration);
 
-            span.setAttribute("player", player.orElse("Anonymous"));
-            span.setAttribute("rolls", rolls.get());
-            span.setAttribute("result", result.toString());
+//            span.setAttribute("player", player.orElse("Anonymous"));
+//            span.setAttribute("rolls", rolls.get());
+//            span.setAttribute("result", result.toString());
             return result;
         } catch (InterruptedException e) {
             e.printStackTrace();
             return List.of();
         } finally {
-            span.end();
+//            span.end();
         }
     }
 }

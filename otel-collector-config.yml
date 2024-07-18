@@ -11,7 +11,9 @@ exporters:
     loglevel: debug
 
   otlp:
-    endpoint: "https://es01:9200"  # Usando o nome do serviço do Elasticsearch
+    endpoint: "http://otel-collector:55681"
+    timeout: 10s
+
     tls:
 #      cert_file: "/etc/otel/ssl/otel-collector.crt"   # Caminho para o certificado OTel Collector
 #      key_file: "/etc/otel/ssl/otel-collector.key"   # Caminho para a chave privada OTel Collector

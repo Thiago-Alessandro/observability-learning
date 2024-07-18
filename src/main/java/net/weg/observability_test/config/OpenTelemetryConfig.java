@@ -26,20 +26,18 @@ public class OpenTelemetryConfig {
                 .addSpanProcessor(BatchSpanProcessor.builder(OtlpGrpcSpanExporter.builder().setEndpoint("http://otel-collector:4317").build()).build())
                 .build();
 
-        SdkMeterProvider meterProvider = SdkMeterProvider.builder()
-                .registerMetricReader(PeriodicMetricReader.builder(
-                        OtlpGrpcMetricExporter.builder().setEndpoint("http://otel-collector:4317").build())
-//                        .setInterval(Duration.ofSeconds(10))
-                        .build()
-                )
-                .build();
+//        SdkMeterProvider meterProvider = SdkMeterProvider.builder()
+//                .registerMetricReader(PeriodicMetricReader.builder(
+//                        OtlpGrpcMetricExporter.builder().setEndpoint("http://otel-collector:4317").build())
+////                        .setInterval(Duration.ofSeconds(10))
+//                        .build()
+//                ).build();
 
         OpenTelemetrySdk openTelemetrySdk = OpenTelemetrySdk.builder()
                 .setTracerProvider(tracerProvider)
-                .setMeterProvider(meterProvider)
+//                .setMeterProvider(meterProvider)
                 .setPropagators(ContextPropagators.create(W3CTraceContextPropagator.getInstance()))
                 .build();
-
 
         GlobalOpenTelemetry.set(openTelemetrySdk);
         return openTelemetrySdk;
@@ -50,9 +48,9 @@ public class OpenTelemetryConfig {
         return openTelemetry.getTracer("observability-test");
     }
 
-    @Bean
-    public Meter meter(OpenTelemetry openTelemetry) {
-        return openTelemetry.getMeter("observability-test");
-    }
+//    @Bean
+//    public Meter meter(OpenTelemetry openTelemetry) {
+//        return openTelemetry.getMeter("observability-test");
+//    }
 
 }
