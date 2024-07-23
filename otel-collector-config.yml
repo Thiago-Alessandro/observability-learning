@@ -1,50 +1,62 @@
 receivers:
   otlp:
     protocols:
-      http:
-        endpoint: "0.0.0.0:55681"
       grpc:
         endpoint: "0.0.0.0:4317"
+      http:
+        endpoint: "0.0.0.0:4318"
+#        endpoint: "0.0.0.0:55681"
+
 
 exporters:
   logging:
     loglevel: debug
 
-  otlp:
-    endpoint: "http://otel-collector:55681"
+#  otlp:
+#    endpoint: "https://es01:9200"
+##    timeout: 10s
+#    tls:
+##      cert_file: "/etc/otel/ssl/otel-collector.crt"   # Caminho para o certificado OTel Collector
+#      insecure_skip_verify: true
+
+
+  otlp/elasticsearch:
+    endpoint: "https://es01:9200"
     timeout: 10s
-
-    tls:
-#      cert_file: "/etc/otel/ssl/otel-collector.crt"   # Caminho para o certificado OTel Collector
-#      key_file: "/etc/otel/ssl/otel-collector.key"   # Caminho para a chave privada OTel Collector
-      insecure_skip_verify: true
-
-
-  elasticsearch:
-    endpoints: ["https://es01:9200"]
-    index: "otel-logs"
-    user: elastic
-    password: changeme
     tls:
 #      cert_file: "/etc/otel/ssl/otel-collector.crt"   # Caminho para o certificado OTel Collector
 #      key_file: "/etc/otel/ssl/otel-collector.key"   # Caminho para a chave privada OTel Collector /ssl/ca.crt
+#      ca_file: ""
       insecure_skip_verify: true
 
 
 processors:
   batch:
+    timeout: 10s  # Ajuste para enviar dados em intervalos menores
+    send_batch_size: 256  # Ajuste para dividir os dados em lotes menores
+    send_batch_max_size: 2048
+#    timeout: 10s
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 4000
+    spike_limit_mib: 500
+#  resource:
+#    attributes:
+#      - key: service.name
+#        value: "my-service"
+#        action: upsert
 
 service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [batch]
-      exporters: [otlp, logging, elasticsearch]
+      processors: [batch, memory_limiter]
+      exporters: [otlp/elasticsearch, logging]
     metrics:
       receivers: [otlp]
-      processors: [batch]
-      exporters: [otlp, logging, elasticsearch]
+      processors: [batch, memory_limiter]
+      exporters: [otlp/elasticsearch, logging]
     logs:
       receivers: [otlp]
-      processors: [batch]
-      exporters: [otlp, logging, elasticsearch]
+      processors: [batch, memory_limiter]
+      exporters: [otlp/elasticsearch, logging]

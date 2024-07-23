@@ -1,0 +1,12 @@
+# Definir finais de linha para arquivos de texto
+* text=auto
+
+# Manter finais de linha LF para arquivos específicos
+*.sh text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.md text eol=lf
+
+# Manter finais de linha CRLF para arquivos específicos
+*.bat text eol=crlf
+*.cmd text eol=crlf
