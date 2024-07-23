@@ -35,7 +35,7 @@ processors:
     timeout: 10s  # Ajuste para enviar dados em intervalos menores
     send_batch_size: 256  # Ajuste para dividir os dados em lotes menores
     send_batch_max_size: 2048
-#    timeout: 10s
+
   memory_limiter:
     check_interval: 1s
     limit_mib: 4000
