@@ -17,11 +17,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
+@RequestMapping("")
 public class RollController {
 
 //    private final Meter meter;
@@ -59,6 +62,11 @@ public class RollController {
 //                .setDescription("Duração das requisições no método rollDice")
 //                .setUnit("ms")
 //                .build();
+    }
+
+    @GetMapping("/test")
+    public String testController(){
+        return sampleService.testService();
     }
 
     @GetMapping("/rolldice")
@@ -102,6 +110,7 @@ public class RollController {
 //            span.setAttribute("player", player.orElse("Anonymous"));
 //            span.setAttribute("rolls", rolls.get());
 //            span.setAttribute("result", result.toString());
+
             return result;
         } catch (InterruptedException e) {
             e.printStackTrace();

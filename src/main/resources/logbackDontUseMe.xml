@@ -1,10 +1,17 @@
 <configuration debug="true">
+<!--    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %highlight(%-5level){FATAL=red, ERROR=red, WARN=yellow, INFO=green, DEBUG=green, TRACE=green} %cyan([%-50.50class]) %-40.40logger{39} loggerOuClass? >>> %msg%n" />-->
+    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} - [%thread] - %highlight(%-5level) - usecase=[%X{usecase}] - %cyan(%-50.50class) >>> %msg%n" />
+
+    <turboFilter class="net.weg.observability_test.filter.MDCLogLevelFilter" />
 
     <appender name="otel-otlp"
               class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
         <captureExperimentalAttributes>false</captureExperimentalAttributes>
         <captureCodeAttributes>true</captureCodeAttributes>
         <captureKeyValuePairAttributes>true</captureKeyValuePairAttributes>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
     </appender>
 
     <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
@@ -13,14 +20,14 @@
     </appender>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${LOG_PATTERN}</pattern>
         </encoder>
     </appender>
 
-    <root level="DEBUG">
+    <root>
         <appender-ref ref="otel-otlp" />
         <appender-ref ref="LOGSTASH" />
-        <appender-ref ref="STDOUT" />
+        <appender-ref ref="STDOUT"/>
     </root>
 </configuration>
