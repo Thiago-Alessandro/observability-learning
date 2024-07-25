@@ -12,7 +12,7 @@ public class RestCustomizer implements RestClientCustomizer {
         String logLevel = MDC.get("X-LOG-LEVEL");
         String usecase = MDC.get("X-LOG-USECASE");
         restClientBuilder
-                .baseUrl("http://localhost:1010")
+                .baseUrl("http://localhost:1010/app")
                 .defaultHeaders(httpHeaders -> {
                     httpHeaders.add("X-LOG-LEVEL", logLevel);
                     httpHeaders.add("X-LOG-USECASE", usecase);

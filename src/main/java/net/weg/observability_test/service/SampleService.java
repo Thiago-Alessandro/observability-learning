@@ -42,8 +42,14 @@ public class SampleService {
     }
 
     private Object makeRestClientRequest(String logLevel, Set<String> usecase){
-        RestClient restClient = RestClient.builder().build();
-        String result = restClient.get().uri("/app").retrieve().body(String.class);
+        RestClient restClient = RestClient.builder()
+                .baseUrl("http://localhost:1010/app")
+                .defaultHeaders( httpHeaders -> {
+                        httpHeaders.set("X-LOG-LEVEL", logLevel);
+                        httpHeaders.set("X-LOG-USECASE", SetConverter.convertSetToString(usecase));
+                })
+                .build();
+        String result = restClient.get().retrieve().body(String.class);
         return result;
     }
 

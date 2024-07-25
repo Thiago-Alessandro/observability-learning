@@ -34,11 +34,10 @@ public class LogbackConfig implements LoggerContextListener {
         encoder.setPattern("%d{yyyy-MM-dd HH:mm:ss.SSS} - [%thread] - %highlight(%-5level) - usecase=[%X{usecase}] - %cyan(%-50.50class) >>> %msg%n");
         encoder.start();
 
+        context.addTurboFilter(new MDCLogLevelFilter());
         Logger rootLogger = context.getLogger("ROOT");
 //        rootLogger.setLevel(Level.TRACE);
 
-        // Adicione seus appenders e filtros programaticamente
-        context.addTurboFilter(new MDCLogLevelFilter());
 
         rootLogger.addAppender(createConsoleAppender(context, encoder));
         rootLogger.addAppender(createLogstashAppender(context, encoder));
