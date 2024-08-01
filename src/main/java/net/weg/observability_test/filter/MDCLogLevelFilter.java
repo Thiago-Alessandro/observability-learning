@@ -4,6 +4,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.turbo.TurboFilter;
 import ch.qos.logback.core.spi.FilterReply;
+import net.weg.observability_test.enums.MDCKeys;
 import org.slf4j.MDC;
 import org.slf4j.Marker;
 import org.springframework.stereotype.Component;
@@ -14,7 +15,7 @@ public class MDCLogLevelFilter extends TurboFilter {
     @Override
     public FilterReply decide(Marker marker, Logger logger, Level level, String message, Object[] params, Throwable t) {
 
-        String requestLogLevel = MDC.get("X-LOG-LEVEL");
+        String requestLogLevel = MDC.get(MDCKeys.LOG_LEVEL.mdcKey());
 
         if (requestLogLevel == null) {
             return FilterReply.NEUTRAL;

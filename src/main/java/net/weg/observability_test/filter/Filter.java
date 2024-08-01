@@ -5,14 +5,13 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
-//import net.weg.observability_test.service.LogService;
-import net.weg.observability_test.util.SetConverter;
+import net.weg.observability_test.enums.MDCKeys;
+import net.weg.observability_test.util.MDCUsecase;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Set;
 
 @Component
 @AllArgsConstructor
@@ -23,16 +22,11 @@ public class Filter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        String logLevel = request.getHeader("X-LOG-LEVEL");
-        String logUsecase = request.getHeader("X-LOG-USECASE");
+        String logLevel = request.getHeader(MDCKeys.LOG_LEVEL.headerName());
+        String logUsecase = request.getHeader(MDCKeys.USECASE.headerName());
 
-        Set<String> usecase = SetConverter.convertStringToSet(logUsecase);
-        usecase.add("MD001");
-        usecase.add("CS001");
-        usecase.add("CF001");
-
-        MDC.put("usecase", SetConverter.convertSetToString(usecase));
-        MDC.put("X-LOG-LEVEL", logLevel);
+        System.out.println(MDCUsecase.push(logUsecase));
+        MDC.put(MDCKeys.LOG_LEVEL.mdcKey(), logLevel);
 
         try {
             filterChain.doFilter(request, response);

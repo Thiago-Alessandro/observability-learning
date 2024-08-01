@@ -6,57 +6,71 @@ receivers:
       http:
         endpoint: "0.0.0.0:4318"
 #        endpoint: "0.0.0.0:55681"
+#  filelog:
+#    include:
+#      - ./logs.log
+##    operators:
+##      - type: regex_parser
+##        regex: '^(?P<time>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) (?P<sev>[A-Z]*) (?P<msg>.*)$'
+##        timestamp:
+##          parse_from: attributes.time
+##          layout: '%Y-%m-%d %H:%M:%S'
+##        severity:
+##          parse_from: attributes.sev
+#    multiline:
+#      line_start_pattern: ^Exception
+
 
 
 exporters:
   logging:
     loglevel: debug
 
-#  otlp:
-#    endpoint: "https://es01:9200"
-##    timeout: 10s
-#    tls:
-##      cert_file: "/etc/otel/ssl/otel-collector.crt"   # Caminho para o certificado OTel Collector
-#      insecure_skip_verify: true
 
 
-  otlp/elasticsearch:
-    endpoint: "https://es01:9200"
-    timeout: 10s
+  elasticsearch:
+    endpoints: [ "https://es01:9200" ]
+    traces_index: "traces-app"
+    logs_index: "logs-app"
+    user: elastic
+    password: changeme
     tls:
-#      cert_file: "/etc/otel/ssl/otel-collector.crt"   # Caminho para o certificado OTel Collector
-#      key_file: "/etc/otel/ssl/otel-collector.key"   # Caminho para a chave privada OTel Collector /ssl/ca.crt
-#      ca_file: ""
       insecure_skip_verify: true
+
+#  otlp/elasticsearch:
+#    endpoint: "https://es01:9200"
+#    timeout: 10s
+#    tls:
+#      insecure: false
+#      insecure_skip_verify: true
 
 
 processors:
   batch:
-    timeout: 10s  # Ajuste para enviar dados em intervalos menores
-    send_batch_size: 256  # Ajuste para dividir os dados em lotes menores
+    timeout: 10s
+    send_batch_size: 256
     send_batch_max_size: 2048
 
-  memory_limiter:
-    check_interval: 1s
-    limit_mib: 4000
-    spike_limit_mib: 500
-#  resource:
-#    attributes:
-#      - key: service.name
-#        value: "my-service"
-#        action: upsert
+  transform:
+    error_mode: ignore
+    log_statements:
+      - context: log
+#        conditions:
+#          - attributes["usecase"] != null
+        statements:
+          - set(attributes["usecase"], Split(attributes["usecase"], ","))
 
 service:
   pipelines:
+    logs:
+      receivers: [ otlp ]
+      processors: [ batch, transform ]
+      exporters: [ logging, elasticsearch]
     traces:
       receivers: [otlp]
-      processors: [batch, memory_limiter]
-      exporters: [otlp/elasticsearch, logging]
-    metrics:
-      receivers: [otlp]
-      processors: [batch, memory_limiter]
-      exporters: [otlp/elasticsearch, logging]
-    logs:
-      receivers: [otlp]
-      processors: [batch, memory_limiter]
-      exporters: [otlp/elasticsearch, logging]
+      processors: [batch]
+      exporters: [ logging, elasticsearch]
+#    metrics:
+#      receivers: [otlp]
+#      processors: [batch]
+#      exporters: [ logging, elasticsearch]
