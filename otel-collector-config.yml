@@ -6,6 +6,25 @@ receivers:
       http:
         endpoint: "0.0.0.0:4318"
 
+#  prometheus:
+#    config:
+#      scrape_configs:
+#        - job_name: 'spring-boot'
+#          static_configs:
+#            - targets: ['localhost:9091']
+
+
+#  prometheus_simple:
+#    collection_interval: 10s
+#    endpoint: '127.0.0.1:9091'
+#    metrics_path: '/actuator/prometheus'
+##    use_service_account: false
+#    tls:
+##      ca_file: '/path/to/ca'
+##      cert_file: '/path/to/cert'
+##      key_file: '/path/to/key'
+#      insecure_skip_verify: true
+
 #  filelog:
 #    include:
 #      - ./logs.log
@@ -24,8 +43,8 @@ receivers:
 
 exporters:
   logging:
-    loglevel: debug
-
+#    loglevel: debug
+    verbosity: detailed
 
 
   elasticsearch:
@@ -37,12 +56,17 @@ exporters:
     tls:
       insecure_skip_verify: true
 
-#  otlp/elasticsearch:
-#    endpoint: "https://es01:9200"
-#    timeout: 10s
-#    tls:
-#      insecure: false
+  otlp:
+    endpoint: "http://fleet-server:8200"
+    timeout: 10s
+    headers:
+      Authorization: "Bearer supersecrettoken"
+    tls:
+      insecure: true
 #      insecure_skip_verify: true
+
+  prometheus:
+    endpoint: "0.0.0.0:9091"
 
 
 processors:
@@ -55,10 +79,48 @@ processors:
     error_mode: ignore
     log_statements:
       - context: log
-#        conditions:
-#          - attributes["usecase"] != null
         statements:
           - set(attributes["usecase"], Split(attributes["usecase"], ","))
+    metric_statements:
+      - context: datapoint
+        statements:
+          - set(attributes["meter.count"], count)
+          - set(attributes["meter.sum"], sum)
+#          - extract_sum_metric(false)
+#          - extract_count_metric(true)
+
+
+#  metricstransform:
+#    transforms:
+#      - include: http.server.requests
+#        match_type: strict
+#        action: insert
+#        new_name: test.sum
+#        operations:
+#          - action: aggregate_labels
+#            label_set: []
+#            new_value: sum
+#
+#      - include: http.server.requests
+#        match_type: strict
+#        action: insert
+#        new_name: test.count
+#        operations:
+#          - action: aggregate_labels
+#            label_set: []
+#            new_value: count
+
+#  metricstransform:
+#    transforms:
+#      - include: http.server.requests
+#        match_type: strict
+#        action: update
+#        operations:
+#          - action: aggregate_labels
+#            label_set:
+#              - duration_bucket
+#            aggregation_type: sum
+
 
 service:
   pipelines:
@@ -70,7 +132,8 @@ service:
       receivers: [otlp]
       processors: [batch]
       exporters: [ logging, elasticsearch]
-#    metrics:
-#      receivers: [otlp]
-#      processors: [batch]
-#      exporters: [ logging, elasticsearch]
+    metrics:
+#      receivers: [otlp, prometheus]
+      receivers: [otlp]
+      processors: [batch, transform]
+      exporters: [ logging, otlp, prometheus ]

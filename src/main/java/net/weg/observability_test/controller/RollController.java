@@ -3,6 +3,8 @@ package net.weg.observability_test.controller;
 import java.util.List;
 import java.util.Optional;
 
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
@@ -64,11 +66,15 @@ public class RollController {
 //                .build();
     }
 
+//    @Timed(value = "endpoint.timed.test", histogram = true)
+//    @Counted(value = "endpoint.counted.test")
     @GetMapping("/test")
     public String testController(){
         return sampleService.testService();
     }
 
+//    @Timed(value = "endpoint.timed.rolldice")
+//    @Counted(value = "endpoint.counted.rolldice")
     @GetMapping("/rolldice")
     public List<Integer> index(@RequestParam("player") Optional<String> player,
                                @RequestParam("rolls") Optional<Integer> rolls) {

@@ -1,8 +1,10 @@
 package net.weg.observability_test.service;
 
+import ch.qos.logback.classic.LoggerContext;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.Tracer;
 import net.weg.observability_test.util.MDCUsecase;
+import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,21 @@ public class SampleService {
     private final RestClient restClient;
     private final RestTemplate restTemplate;
 
+    public String resetLogbackContext() {
+        ILoggerFactory iLoggerFactory = LoggerFactory.getILoggerFactory();
+        if (iLoggerFactory instanceof LoggerContext) {
+            LoggerContext context = (LoggerContext) iLoggerFactory;
+//            System.out.println(context.getLoggerList() + "\n");
+//            System.out.println(context.getTurboFilterList());
+//            System.out.println("before\n");
+            context.reset();
+//            System.out.println(context.getLoggerList() + "\n");
+//            System.out.println(context.getTurboFilterList());
+//            System.out.println("after\n");
+            return "LoggerContext reset!";
+        }
+        return "Failed to reset LoggerContext!";
+    }
 
     public SampleService(RestClient.Builder builder, RestTemplateBuilder restTemplateBuilder) {
         this.restClient = builder.build();
@@ -36,8 +53,8 @@ public class SampleService {
     }
 
     public String testService(){
-        System.out.println(MDCUsecase.push("TS001"));
-        System.out.println(MDCUsecase.pop("MD001"));
+        MDCUsecase.push("TS001");
+        MDCUsecase.pop("MD001");
 
 //        System.out.println(makeRestTemplateRequest());
 //        String result = (String) makeRestClientRequest();
@@ -64,6 +81,7 @@ public class SampleService {
         logger.info("INFO LOG");
         logger.warn("WARN LOG");
         logger.error("ERROR LOG");
+
     }
 
 
@@ -71,6 +89,7 @@ public class SampleService {
         Span span = tracer.spanBuilder("SampleService.index").startSpan();
         try {
             logger.info("Passing through some method!");
+//            System.out.println(resetLogbackContext());
         } finally {
             span.end();
         }

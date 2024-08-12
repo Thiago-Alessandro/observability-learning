@@ -1,5 +1,6 @@
 package net.weg.observability_test.config;
 
+import io.micrometer.observation.ObservationRegistry;
 import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.metrics.Meter;
@@ -18,6 +19,8 @@ import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
 import io.opentelemetry.sdk.trace.SdkTracerProvider;
 import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
 import io.opentelemetry.sdk.logs.SdkLoggerProvider;
+import org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration;
+import org.springframework.boot.actuate.autoconfigure.metrics.ServiceLevelObjectiveBoundary;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -31,6 +34,7 @@ public class OpenTelemetryConfig {
                 .addSpanProcessor(BatchSpanProcessor.builder(OtlpGrpcSpanExporter.builder().setEndpoint("http://otel-collector:4317").build()).build())
                 .build();
 
+
 //        SdkMeterProvider meterProvider = SdkMeterProvider.builder()
 //                .registerMetricReader(PeriodicMetricReader.builder(
 //                        OtlpGrpcMetricExporter.builder().setEndpoint("http://otel-collector:4317").build())
@@ -40,6 +44,7 @@ public class OpenTelemetryConfig {
 //
 //                ).build();
 
+//        ObservationRegistry.create().
 
 
         LogRecordExporter logExporter = OtlpGrpcLogRecordExporter.builder()
@@ -52,6 +57,7 @@ public class OpenTelemetryConfig {
                 .addLogRecordProcessor(BatchLogRecordProcessor.builder(logExporter).build())
 //                .addLogProcessor()
                 .build();
+
 
 
         OpenTelemetrySdk openTelemetrySdk = OpenTelemetrySdk.builder()

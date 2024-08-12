@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import ch.qos.logback.classic.Logger;
 
 @Component
-@AllArgsConstructor
 public class LogbackConfig implements LoggerContextListener {
 
     @EventListener(ApplicationReadyEvent.class)
@@ -23,6 +22,7 @@ public class LogbackConfig implements LoggerContextListener {
         if (iLoggerFactory instanceof LoggerContext) {
             LoggerContext context = (LoggerContext) iLoggerFactory;
             configureDefaultContext(context);
+            context.addListener(this);
         }
     }
 
