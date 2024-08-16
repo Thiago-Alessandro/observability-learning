@@ -38,16 +38,28 @@
 	</dependencyManagement>
 
 	<dependencies>
-		<dependency>
-			<groupId>net.logstash.logback</groupId>
-			<artifactId>logstash-logback-encoder</artifactId>
-			<version>7.2</version>
-		</dependency>
 
 		<dependency>
 			<groupId>io.micrometer</groupId>
 			<artifactId>micrometer-registry-otlp</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-prometheus</artifactId>
+<!--			<version>${micrometer.version}</version>-->
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
+<!--			<version>3.3.2</version>-->
+		</dependency>
+
+<!--		<dependency>-->
+<!--			<groupId>io.micrometer</groupId>-->
+<!--			<artifactId>micrometer-registry-prometheus-simpleclient</artifactId>-->
+<!--			<version>${micrometer.version}</version>-->
+<!--		</dependency>-->
 
 		<dependency>
 			<groupId>io.opentelemetry.instrumentation</groupId>
@@ -83,21 +95,19 @@
 			<scope>test</scope>
 		</dependency>
 
-<!--		<dependency>-->
-<!--			<groupId>io.opentelemetry.instrumentation</groupId>-->
-<!--			<artifactId>opentelemetry-logback-mdc-1.0</artifactId>-->
-<!--		</dependency>-->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+
 
 <!--		<dependency>-->
 <!--			<groupId>io.opentelemetry.instrumentation</groupId>-->
 <!--			<artifactId>opentelemetry-logback-appender-1.0</artifactId>-->
+<!--			<version>2.6.0-alpha</version>-->
 <!--		</dependency>-->
 
-<!--		<dependency>-->
-<!--			<groupId>io.opentelemetry</groupId>-->
-<!--			<artifactId>opentelemetry-semconv</artifactId>-->
-<!--			<version>1.30.1-alpha</version>-->
-<!--		</dependency>-->
 	</dependencies>
 
 	<build>
