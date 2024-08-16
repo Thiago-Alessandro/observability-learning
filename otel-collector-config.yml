@@ -134,14 +134,14 @@ processors:
 
 service:
   pipelines:
-#    logs:
-#      receivers: [ otlp ]
-#      processors: [ batch, transform ]
-#      exporters: [ logging, elasticsearch]
-#    traces:
-#      receivers: [otlp]
-#      processors: [batch]
-#      exporters: [ logging, elasticsearch]
+    logs:
+      receivers: [ otlp ]
+      processors: [ batch, transform ]
+      exporters: [ logging, elasticsearch]
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [ logging, elasticsearch]
     metrics:
 #      receivers: [otlp, prometheus]
       receivers: [otlp]
