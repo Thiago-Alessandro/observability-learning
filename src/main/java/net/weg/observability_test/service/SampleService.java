@@ -3,16 +3,24 @@ package net.weg.observability_test.service;
 import ch.qos.logback.classic.LoggerContext;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.Tracer;
+import lombok.AllArgsConstructor;
 import net.weg.observability_test.util.MDCUsecase;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestTemplate;
+
+import java.net.http.HttpClient;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Random;
 
 
 @Service
@@ -20,6 +28,8 @@ public class SampleService {
 
     private final RestClient restClient;
     private final RestTemplate restTemplate;
+    @Autowired
+    private Environment env;
 
     public String resetLogbackContext() {
         ILoggerFactory iLoggerFactory = LoggerFactory.getILoggerFactory();
@@ -61,7 +71,7 @@ public class SampleService {
 
         printTestLogs();
 
-        return "result";
+        return "result by server" + env.getProperty("spring.application.name");
     }
 
     private Object makeRestClientRequest(){
@@ -94,4 +104,9 @@ public class SampleService {
             span.end();
         }
     }
+
+
+
+
+
 }

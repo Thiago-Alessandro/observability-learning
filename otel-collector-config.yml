@@ -2,9 +2,9 @@ receivers:
   otlp:
     protocols:
       grpc:
-        endpoint: "0.0.0.0:4317"
+        endpoint: "${OTLP_GRPC_ENDPOINT}"
       http:
-        endpoint: "0.0.0.0:4318"
+        endpoint: "${OTLP_HTTP_ENDPOINT}"
 
 #  prometheus:
 #    config:
@@ -65,15 +65,21 @@ exporters:
       insecure: true
 #      insecure_skip_verify: true
 
-  prometheus:
-    endpoint: "0.0.0.0:9091"
+#  prometheus:
+#    endpoint: "0.0.0.0:9091"
 
 
 processors:
   batch:
-    timeout: 10s
+    timeout: 1s
     send_batch_size: 256
     send_batch_max_size: 2048
+
+  cumulativetodelta:
+    include:
+      metrics:
+        - "http.server.requests"
+      match_type: strict
 
   transform:
     error_mode: ignore
@@ -86,6 +92,10 @@ processors:
         statements:
           - set(attributes["meter.count"], count)
           - set(attributes["meter.sum"], sum)
+          - set(attributes["meter.average.latency"], sum/count)
+#          - set(attributes["app.name"], spring.application.name)
+#          - set(count, 0)
+#          - set(sum, 0.0)
 #          - extract_sum_metric(false)
 #          - extract_count_metric(true)
 
@@ -124,16 +134,16 @@ processors:
 
 service:
   pipelines:
-    logs:
-      receivers: [ otlp ]
-      processors: [ batch, transform ]
-      exporters: [ logging, elasticsearch]
-    traces:
-      receivers: [otlp]
-      processors: [batch]
-      exporters: [ logging, elasticsearch]
+#    logs:
+#      receivers: [ otlp ]
+#      processors: [ batch, transform ]
+#      exporters: [ logging, elasticsearch]
+#    traces:
+#      receivers: [otlp]
+#      processors: [batch]
+#      exporters: [ logging, elasticsearch]
     metrics:
 #      receivers: [otlp, prometheus]
       receivers: [otlp]
-      processors: [batch, transform]
-      exporters: [ logging, otlp, prometheus ]
+      processors: [ cumulativetodelta, transform, batch]
+      exporters: [ logging, otlp ]

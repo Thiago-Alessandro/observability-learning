@@ -19,19 +19,43 @@ import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
 import io.opentelemetry.sdk.trace.SdkTracerProvider;
 import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
 import io.opentelemetry.sdk.logs.SdkLoggerProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.metrics.ServiceLevelObjectiveBoundary;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.net.URL;
+import java.util.List;
 
 
 @Configuration
 public class OpenTelemetryConfig {
 
+    @Autowired
+    private Environment env;
+
+    @Bean
+    public CorsConfigurationSource corsConfig() {
+        CorsConfiguration corsConfig = new CorsConfiguration();
+        corsConfig.setAllowedOrigins(List.of("*" ));
+        corsConfig.setAllowedMethods(List.of("POST","PUT","DELETE","GET","PATCH"));
+        corsConfig.setAllowCredentials(true);
+        corsConfig.setAllowedHeaders(List.of("*"));
+        UrlBasedCorsConfigurationSource corsConfigurationSource = new UrlBasedCorsConfigurationSource();
+        corsConfigurationSource.registerCorsConfiguration("/**",corsConfig);
+        return corsConfigurationSource;
+    }
+
     @Bean
     public OpenTelemetry openTelemetry() {
+        String url = "http://loadbalancer:4317";
         SdkTracerProvider tracerProvider = SdkTracerProvider.builder()
-                .addSpanProcessor(BatchSpanProcessor.builder(OtlpGrpcSpanExporter.builder().setEndpoint("http://otel-collector:4317").build()).build())
+                .addSpanProcessor(BatchSpanProcessor.builder(OtlpGrpcSpanExporter.builder().setEndpoint(url).build()).build())
                 .build();
 
 
@@ -46,9 +70,8 @@ public class OpenTelemetryConfig {
 
 //        ObservationRegistry.create().
 
-
         LogRecordExporter logExporter = OtlpGrpcLogRecordExporter.builder()
-                .setEndpoint("http://otel-collector:4317")
+                .setEndpoint(url)
                 .build();
 
         // Configure the SdkLogEmitterProvider

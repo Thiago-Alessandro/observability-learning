@@ -8,7 +8,7 @@ WORKDIR /app
 COPY target/observability-test-0.0.1-SNAPSHOT.jar /app/observability-test.jar
 
 # Exponha a porta que a aplicação irá usar
-EXPOSE 8080
+EXPOSE 9090
 
 # Comando para executar a aplicação
 ENTRYPOINT ["java", "-jar", "/app/observability-test.jar"]

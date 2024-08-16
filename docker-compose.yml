@@ -246,6 +246,9 @@ services:
     command:
       - --strict.perms=false
 
+
+
+
   otel-collector:
     image: registry-docker.weg.net/otel/opentelemetry-collector-contrib:latest
 #    image: registry-docker.weg.net/otel/opentelemetry-collector:latest
@@ -254,6 +257,8 @@ services:
       - ./otel-collector-config.yml:/otel-local-config.yaml
       - certs:/etc/otel/ssl  # Volume para os certificados, incluindo o certificado OTel Collector
     environment:
+      - OTLP_GRPC_ENDPOINT="0.0.0.0:4317"
+      - OTLP_HTTP_ENDPOINT="0.0.0.0:4318"
       - ELASTICSEARCH_HOST=https://es01:9200
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://fleet-server:8200
       - OTEL_EXPORTER_OTLP_HEADERS="Authorization=Bearer supersecrettoken"
@@ -269,21 +274,92 @@ services:
     mem_limit: ${ES_MEM_LIMIT}
     command: ["--config", "/otel-local-config.yaml"]
 
+
+  otel-collector2:
+    image: registry-docker.weg.net/otel/opentelemetry-collector-contrib:latest
+    #    image: registry-docker.weg.net/otel/opentelemetry-collector:latest
+    container_name: otel-collector2
+    volumes:
+      - ./otel-collector-config.yml:/otel-local-config.yaml
+      - certs:/etc/otel/ssl  # Volume para os certificados, incluindo o certificado OTel Collector
+    environment:
+      - OTLP_GRPC_ENDPOINT="0.0.0.0:4317"
+      - OTLP_HTTP_ENDPOINT="0.0.0.0:4318"
+#      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector
+      - ELASTICSEARCH_HOST=https://es01:9200
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://fleet-server:8200
+      - OTEL_EXPORTER_OTLP_HEADERS="Authorization=Bearer supersecrettoken"
+      - OTEL_METRICS_EXPORTER=otlp
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=observability-test,service.version=1.0,deployment.environment=production
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
+      - xpack.security.transport.ssl.certificate_authorities=/etc/otel/ssl/ca.crt
+      - ELASTICSEARCH_CA_PATH=/usr/share/otel/ca.crt
+      - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=/etc/otel/ssl/ca.crt
+      - OTEL_SEMCONV_STABILITY_OPT_IN=http/dup
+      - ES_JAVA_OPTS=-Xms256m -Xmx256m
+    mem_limit: ${ES_MEM_LIMIT}
+    command: ["--config", "/otel-local-config.yaml"]
+
+
+
   observability-test:
     image: observability-test:latest
     container_name: observability-test
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - "9090:9090"
+    expose:
+      - 9090
+#    ports:
+#      - "9090:9090"
     environment:
+      - SPRING_APPLICATION_NAME=observability-test
+      - MANAGEMENT_OTLP_METRICS_EXPORT_URL=http://loadbalancer:4318/v1/metrics
+#      - SERVER_PORT=9090
       - otel.instrumentation.logback-appender.experimental.capture-mdc-attributes=*
       - SPRING_PROFILES_ACTIVE=production
       - LOGGING_PATTERN_CONSOLE=%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %replace([usecase=%X{usecase}]){'\[usecase=\]',''}  %p%replace([traceId=%X{traceId}]){'\[traceId=\]',''}%replace([spanId=%X{spanId}]){'\[spanId=\]', ''}%replace([username=%X{username}]){'\[username=\]',''} %logger{13}:%M [%t] %m%ex%n
     depends_on:
-      - otel-collector
+#      - otel-collector
       - kibana
+
+  observability-test2:
+    image: observability-test:latest
+    container_name: observability-test2
+    build:
+      context: .
+      dockerfile: Dockerfile
+    expose:
+      - 9090
+#    ports:
+#      - "9091:9091"
+    environment:
+      - SPRING_APPLICATION_NAME=observability-test2
+      - MANAGEMENT_OTLP_METRICS_EXPORT_URL=http://loadbalancer:4318/v1/metrics
+#      - MANAGEMENT_OTLP_METRICS_EXPORT_URL=http://otel-collector:5328
+#      - SERVER_PORT=9091
+      - otel.instrumentation.logback-appender.experimental.capture-mdc-attributes=*
+      - SPRING_PROFILES_ACTIVE=production
+      - LOGGING_PATTERN_CONSOLE=%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %replace([usecase=%X{usecase}]){'\[usecase=\]',''}  %p%replace([traceId=%X{traceId}]){'\[traceId=\]',''}%replace([spanId=%X{spanId}]){'\[spanId=\]', ''}%replace([username=%X{username}]){'\[username=\]',''} %logger{13}:%M [%t] %m%ex%n
+    depends_on:
+#      - otel-collector
+      - kibana
+
+  loadbalancer:
+    image: registry-docker.weg.net/nginx:stable
+    container_name: loadbalancer
+    ports:
+      - "9090:9090"
+    depends_on:
+      - observability-test
+      - observability-test2
+    expose:
+      - 9090
+      - 4318
+      - 4317
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
 
 
   fleet-server:
