@@ -143,7 +143,6 @@ service:
       processors: [batch]
       exporters: [ logging, elasticsearch]
     metrics:
-#      receivers: [otlp, prometheus]
       receivers: [otlp]
       processors: [ cumulativetodelta, transform, batch]
       exporters: [ logging, otlp ]
